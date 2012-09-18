@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>食品管理</title>
+    <script src='javascripts/jquery/jquery-1.8.1.min.js'></script>
+    <script src="javascripts/underscore/underscore-min.js"></script>
+    <script src="javascripts/backbone/backbone-min.js"></script>
+    <script src="javascripts/handlebars/handlebars-1.0.0.beta.6.js"></script>
+    <script src="javascripts/food/food.js"></script>
+
+    <script id="food_list_template" type="text/x-handlebars-template">
+        <div>
+            <div id="toolbar">
+                <a href="#add">新食品</a>
+            </div>
+            <div>食品列表</div>
+            <hr/>
+        </div>
+    </script>
+    <script id="food_list_item_template" type="text/x-handlebars-template">
+        <div class="foodItem">
+            <div>品名：{{name}}</div>
+            <div>价格：{{price}}</div>
+            <div>厂商：--</div>
+            <div>
+                <button>修改</button>
+                <button>删除</button>
+            </div>
+        </div>
+    </script>
+    <script id="food_form_template" type="text/x-handlebars-template">
+        <div id="food_form">
+             <div>品名：<input id="foodName"></div>
+            <button>保存</button>
+        </div>
+    </script>
+    <style>
+        #app {
+            width: 400px;
+            background: silver;
+        }
+
+        .foodItem {
+            padding: 1em;
+        }
+
+        #toolbar {
+            padding: 1em;
+        }
+
+        .toolbar a {
+            margin-right: 2px;
+        }
+
+        #food_form {
+            width: 400px;
+            height: 400px;
+            background: orange;
+            position: absolute;
+            top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+    marshal.el='#app';
+    Backbone.history.start();
+</script>
+</body>
+</html>
