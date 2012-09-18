@@ -12,17 +12,18 @@ var marshal = {
 $(marshal.init());
 
 (function (marshal) {
-    var Food = Backbone.Model.extend({});
-    var FoodList = Backbone.Collection.extend({
+    var Food = Backbone.Model.extend({});//食品
+    var FoodList = Backbone.Collection.extend({//食品列表
         model:Food,
         url:'/allFoods'
     });
 
-    var foodList = new FoodList();
+    var foodList = new FoodList(); //创建模块内全局的foodList
     foodList.fetch({add:true});
 
     var FoodRouter = Backbone.Router.extend({
         initialize:function () {
+            this.state = new Backbone.Model;//状态对象，用于处理事件
         },
         routes:{
             'add':'edit',
@@ -31,8 +32,10 @@ $(marshal.init());
         },
         list:function () {
             foodList.off();
-            $(marshal.el).empty();
-            new FoodListView().render().$el.appendTo(marshal.el);
+            var listView = new FoodListView();
+            _.extend(listView, FadeInMixin);//将动画过渡效果加入视图对象
+            listView.render().$el.appendTo(marshal.el);
+            listView.fadeIn();
         },
         edit:function (id) {
             var food;
@@ -43,13 +46,17 @@ $(marshal.init());
                     }
                 });
             }
+
             foodList.off();
-            $(marshal.el).empty();
-            new FoodFormView({model:food}).render().$el.appendTo(marshal.el);
+            var foodFormView = new FoodFormView({model:food});
+            _.extend(foodFormView, FadeInMixin);
+            foodFormView.render().$el.appendTo(marshal.el);
+            foodFormView.fadeIn();
         }
     });
 
-    var FoodListView = Backbone.View.extend({
+    var FoodListView = Backbone.View.extend({//食品列表视图
+        className:'foodList',
         initialize:function () {
             this.collection = foodList;
             var view = this;
@@ -73,7 +80,7 @@ $(marshal.init());
         }
     });
 
-    var FoodListItemView = Backbone.View.extend({
+    var FoodListItemView = Backbone.View.extend({//食品列表条目视图
         initialize:function () {
             var view = this;
             this.model.on('change', function () {
@@ -99,7 +106,7 @@ $(marshal.init());
         }
     });
 
-    var FoodFormView = Backbone.View.extend({
+    var FoodFormView = Backbone.View.extend({//食品表单视图
         initialize:function () {
             this.model = this.model || new Food();
         },
@@ -121,7 +128,7 @@ $(marshal.init());
         },
         action:function () {
             if (!this.model.id) {
-                count++;
+                count++; //因为没有使用数据库，这里模拟自增列
                 foodList.push(this.model);
             }
             foodRouter.navigate('list', {trigger:true});
@@ -136,6 +143,61 @@ $(marshal.init());
             }
         }
     });
+
+    var translateX=function(){//用于生成过渡的转换坐标
+        var x=this.toLeft?410:-410;
+        this.toLeft=!this.toLeft;
+        return x;
+    };
+
+    var FadeInMixin = {//渐入渐出效果mixin
+        fadeIn:function () {
+            var view = this;
+
+            if (foodRouter.state.previous('currentView')) {
+                view.$el.css(
+                    {
+                        '-webkit-transition-duration':'0s',
+                        '-webkit-transform':'translate('+translateX()+'px,0)'
+                    }
+                );
+
+                setTimeout(function () {
+                    view.$el.css({
+                        '-webkit-transition-duration':'0.5s',
+                        '-webkit-transform':'translate(0)'
+                    });
+                }, 0);
+            } else {
+                view.$el.css(
+                    {
+                        '-webkit-transition-duration':'0s',
+                        '-webkit-transform':'translate(0px,0)'
+                    }
+                );
+            }
+
+            if(!foodRouter.registerFadeout){
+                foodRouter.state.on('change:currentView', function (model) {
+                    var view = model.previous('currentView');
+                    if (view) {
+                        view.$el.css({
+                            '-webkit-transition-duration':'0.5s',
+                            '-webkit-transform':'translate(-'+translateX()+'px,0)'
+                        });
+                        view.$el.on('webkitTransitionEnd', function () {
+                            view.remove();
+                            console.log('view removed');
+                        });
+                    }
+                });
+                foodRouter.registerFadeout=true;
+            }
+
+            foodRouter.state.set('currentView', view);
+        }
+    };
+
     var count = 4;
     var foodRouter = new FoodRouter();
 
