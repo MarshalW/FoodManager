@@ -2,6 +2,11 @@
  * Module dependencies.
  */
 
+global.mongodbHost = 'localhost';
+global.mongodbPort = 27017;
+global.mongodbDB = 'test';
+global.dbPoolSize=2;
+
 var express = require('express')
     , routes = require('./routes')
     , food = require('./routes/food');
@@ -21,6 +26,7 @@ app.configure(function () {
 
 app.configure('development', function () {
     app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
+    console.log('development error handler');
 });
 
 app.configure('production', function () {
