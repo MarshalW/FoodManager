@@ -5,23 +5,18 @@
  * Time: 下午3:34
  * To change this template use File | Settings | File Templates.
  */
-var DbProvider=require('../modules/DbProvider').DbProvider;
-var dbProvider=new DbProvider();
-
-var foods = [
-    {id:1, name:'面包', price:4.5},
-    {id:2, name:'牛奶', price:2.5},
-    {id:3, name:'红肠', price:18.8}
-];
+var DbProvider = require('../modules/DbProvider').DbProvider;
+var dbProvider = new DbProvider();
 
 exports.all = function (req, res) {
     console.log(req.headers.accept);
-    dbProvider.getCollection('foods',function(collection){
-       console.log('get collection ok, '+collection);
+    dbProvider.getCollection('foods', function (collection) {
+        collection.find({}).toArray(function (err, result) {
+            res.send(result);
+        });
     });
-    res.send(foods);
 };
 
 exports.crud = function (req, res) {
-
+    //TODO 编写增删改查的代码
 };

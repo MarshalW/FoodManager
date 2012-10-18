@@ -15,22 +15,16 @@ var DbProvider = function () {
 DbProvider.prototype.db = (function () {
     var db = new Db(global.mongodbDB, new Server(global.mongodbHost, global.mongodbPort,
         {auto_reconnect:true}, {poolSize:global.dbPoolSize}));
-    db.open(function (err,db) {
-       console.log('open db');
+    db.open(function (err, db) {
+        if (err) throw err;
     });
     return db;
 })();
 
 DbProvider.prototype.getCollection = function (collectionName, callback) {
-    if(this.db.state=='disconnected') throw new Error('connect error!');
     this.db.collection(collectionName, function (err, collection) {
         if (err) throw err;
-        //callback(collection);
-//        collection.insert({name:'小面包'});
-        collection.find({}).toArray(function (err, result) {
-            console.log(result);
-        });
-
+        callback(collection);
     });
 };
 
